@@ -31,23 +31,23 @@ from swift.common.configuration import account_dirs, container_dirs, \
 from swift.common.ring import Ring
 #from swift.common.db import AccountBroker, ContainerBroker
 """
-This module offers a plugable generic swift crawler for datadirs
-It uses a singel crawl to activate plugable services such as auditors,
+This module offers a pluggable generic swift crawler for datadirs
+It uses a single crawl to activate pluggable services such as auditors,
 updaters, replicators, synchronization and federation.
 
-The single crawl reduces the resoucre use as comapred to the existing
+The single crawl reduces the resource use as compared to the existing
 multi-daemon scheme. 
 
 A single process is used to activate a single crawl across the server data.
 A thread is used for each datadir of each device. 
-The admin should define a target cycle for eventual consistency and tune
-the system accordingly. For exampel an admin may choose to two 10 hour cycles
+The Admin should define a target cycle for eventual consistency and tune
+the system accordingly. For example an Admin may choose to two 10 hour cycles
 per day, the first starting at 10PM and the second starting at 8AM such that
 no eventual consistency activity is done during his service peak hours
 (6PM-10PM in this example). 
 
-In this example, the admin would want to tune all eventual consistency
-to be done evenly along the 10 hour cycles. This can be achieved by tuiing
+In this example, the Admin would want to tune all eventual consistency
+to be done evenly along the 10 hour cycles. This can be achieved by tuning
 the crawler threads to spread their resource load across the target 10hour
 cycles.
 
@@ -56,8 +56,8 @@ it may be required to set the thread slowdown to be 9/10*3600 seconds such
 that the thread will introduce less load on the system and complete its task
 within 10 hours and not within 1. 
 
-The crawler collects teh necessery information to tune the system into an
-sqlite3 DB allowing tunning to be achieved every now and than. 
+The crawler collects the necessary information to tune the system into an
+sqlite3 DB allowing tuning to be achieved every now and than. 
 
 """
 
@@ -118,7 +118,7 @@ class Crawler(object):
                if type(self.conf[section]) is not dict:
                    continue
                if 'data_type' in self.conf[section] and self.conf[section] :
-                    dataname = self.conf[section]['data_type']
+                    datatype = self.conf[section]['data_type']
                     level = self.conf[section]['level']
                     task_module = self.conf[section]['task_module']
                     task_class = self.conf[section]['task_class']
@@ -135,7 +135,7 @@ class Crawler(object):
                     self.conf[section]['func'] = getattr(_object, task_method)
                     self.conf[section]['cycles'] = \
                         int(self.conf[section].get('cycles', 1))
-                    tasks[dataname][level].append(section)
+                    tasks[datatype][level].append(section)
             except: 
                print 'Failed to parse config file section %s - %s' % \
                    (section, sys.exc_info())
@@ -200,7 +200,7 @@ class CrawlerDb(object):
     """
     Draft implementation for a DB used to gather DataCrawler runtime and stats
     results.
-    The DB is also used to feed the necessery slowdown and cycle params 
+    The DB is also used to feed the necessary slowdown and cycle params 
     to the DataCrawler threads.
     It is envisioned that runtime results will be used to tune thread slowdown. 
     """
@@ -347,10 +347,10 @@ class CrawlerDb(object):
 
 class DataCrawler(threading.Thread):
     """
-    A single crawel on a datadir
-    Run all necessery tasks
-    Pace the Crawel and mesure how much time you sleep
-    Mesure the total time 
+    A single crawl on a datadir
+    Run all necessary tasks
+    Pace the Crawl and measure how much time you sleep
+    Measure the total time 
     Store the runtime results to allow improved pacing in the next run
     """
     def __init__(self, dev_path, datatype, tasks, dirs, conf):
@@ -358,7 +358,7 @@ class DataCrawler(threading.Thread):
         # DataCrawler will crawl the datatype dir inside dev_path
         self.dev_path = dev_path
         self.datatype = datatype
-        # Crawler configuration and plugable services
+        # Crawler configuration and pluggable services
         self.tasks = tasks
         self.dirs = dirs
         self.conf = conf
