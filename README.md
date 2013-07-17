@@ -14,6 +14,7 @@ individual Swift Daemons used today.
 Advantages of using the Crawler
 -------------------------------
 1) Performance improvements No. 1
+
    A single walk on the datadirs results in less IO and more efficient usage 
    of server inode caching. 
    if we have N daemons walking the same tree, by the time the second daemon
@@ -21,6 +22,7 @@ Advantages of using the Crawler
    Also, walking N times takes more resources than walking once. 
 
 2) Performance improvements No. 2
+
    A single walk can also improve performance by performing a single execution
    where multiple executions previously existed. For example consider daemons
    handling containers - if we can open the container DB just once we can gain
@@ -28,17 +30,20 @@ Advantages of using the Crawler
    services (as done today by the N separate daemons).
  
 3) Pluggable
+
    Adding a new service no longer require writing a new daemon, instead the
    pluggable service defines where it would like to hook into the crawler and
    the crawler will call the service get called for each item at the right
    time.
 
 4) Maintainability via Code Reuse
+
    Today there are many daemons doing the same work in different ways, 
    this means more bugs and more effort to find and fix bugs or extend the
    system.
 
 5) Tuning the system
+
    Today we have many daemons taking resources individually and without
    mechanisms to tune them. 
    The Swift Crawler framework offers a unique opportunity to gain control.
@@ -46,6 +51,7 @@ Advantages of using the Crawler
    system. A simple automated tuning mechanism is offered from day 1.   
 
 6) Taking Control
+
    The Swift Crawler targets offering more control to the deployer by
    supporting Admin defined cycle time for the crawl. 
    The Admin can define the services that would need to complete during 
@@ -61,10 +67,10 @@ Advantages of using the Crawler
 Background
 ----------
 Daemons are used in Swift to achieve eventual consistency, detect errors, and
-cleanup old data. Daemons needs to balance between performance and consistency
-- the more resources they use, the higher the consistency. Different use cases
-have different performance and consistency criteria and require different
-background service tuning.
+cleanup old data. Daemons needs to balance between performance and
+consistency. The more resources they use, the higher the consistency.
+Different use cases have different performance and consistency criteria and
+require different background service tuning.
 
 Swift uses a set of independent daemons for auditing, replication, updating
 objects, accounts and containers as well as other special daemons - e.g. 
@@ -76,12 +82,15 @@ The different daemons also offers little in the sense of code reuse.
 The Crawler
 -----------
 A Swift Crawler enables:
-1. A single directory walk in which all work will be done
-   - improved performance, reduced i/o load
-2. Pluggable services allowing calls to methods in the respective auditing,
+
+1) A single directory walk in which all work will be done. This will improve
+   overall performance and reduce i/o load
+
+2) Pluggable services allowing calls to methods in the respective auditing,
    replication, updating and other services as well as allowing vendor
    specific extensions.
-3. Central per node DB for maintaining runtime parameters extendable to
+
+3) Central per node DB for maintaining runtime parameters extendable to
    allow crawler thread tuning (out side of the scope of this work) and
    stats (allowing monitoring)
  
@@ -132,12 +141,9 @@ A configuration file is used to define the pluggable services.
 Installation and Usage
 ----------------------
 In this first take:
-1. mkdir /var/swift and make it owned by your swift uid
-2. copy the example ./etc/swift-crawler.conf to /etc/swift/ 
+- mkdir /var/swift and make it owned by your swift uid
+- copy the example ./etc/swift-crawler.conf to /etc/swift/ 
    and make it owned by your swift uid
-3. change /etc/swift/swift-crawler.conf to fit your system
-4. run `python crawel/crawler.py` whenever you want a cycle to start
-5. ping me (davidhadas) on #openstack-swift if I missed anything
-
-
-
+- change /etc/swift/swift-crawler.conf to fit your system
+- run `python crawel/crawler.py` whenever you want a cycle to start
+- ping davidhadas on #openstack-swift if I missed anything
